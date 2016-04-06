@@ -7,9 +7,10 @@ function [Result] = TrendFactor_TimeSeries(MarketData,MADays,LookBackFactor,reb_
 %/ Quaterly
 
 %/ convert market data into the new rebalance frequency
+%/ can only run weekly strategy at the moment
 NewfreqFTS = convertto(MarketData(max(MADays):end),reb_freq);
 Dates = NewfreqFTS.dates;
-Dates = Dates(LookBackFactor:end,:);
+%/Dates = Dates(LookBackFactor:end,:);
 FtsInfo = ftsinfo(MarketData);
 
 
@@ -19,6 +20,7 @@ b_vec = zeros(0);
 stats_vec= zeros(0);
      
     % calculate time series of MA Deviation and Return 
+ 
     for i = 1:size(Dates,1)
         %/ get time series data for each security
         Security_tsObj = extfield(MarketData,FtsInfo.seriesnames{i,1});
@@ -26,14 +28,19 @@ stats_vec= zeros(0);
         %/ find deviation for all testing dates
         Security_Deviation = Security_Deviation(ismember(MarketData.dates,Dates,'rows'),:);
         
+        %/ calculate t + 1 return
         Security_tsObj_freq = Security_tsObj(ismember(Security_tsObj.dates,Dates,'rows'));
-        %/return
         RetMat_t =  fts2mat(Security_tsObj_freq(2:end))./ fts2mat(Security_tsObj_freq(1:end-1)) -1;
         
-
-        
+        %/ run regression
+        for j = LookBackFactor:size(Dates,2)
+            
+            
+            
+        end
     end 
-    
+
+
     for i = 1:size(MADev_vec,1)
         
         x = transpose(RetMat_t);
