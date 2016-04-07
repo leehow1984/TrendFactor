@@ -15,7 +15,7 @@ FtsInfo = ftsinfo(MarketData);
 
 
 MADev_vec = zeros(0);
-RetMat_vec = zeros(0);
+RetMat_t_vec = zeros(0);
 b_vec = zeros(0);
 stats_vec= zeros(0);
 Exp_Ret_vec= zeros(size(Dates,1)-LookBackFactor-1,size(FtsInfo.seriesnames,1));
@@ -41,38 +41,44 @@ Exp_Ret_vec= zeros(size(Dates,1)-LookBackFactor-1,size(FtsInfo.seriesnames,1));
             Exp_Ret = b(1,1) + Security_Deviation(j + 1,:) * b(2:end,1);
             Exp_Ret_vec(j - LookBackFactor + 1,i)= Exp_Ret;
         end
-        
-        RetMat_vec = [RetMat_vec RetMat_t];
-        
     end 
  
     ExpRetRank_vec = zeros(0);
     RetMat_tplus1_vec = zeros(0);
+    ExpRet_vec = zeros(0);
     quantile = 10;
     AverageRet = zeros(1,quantile);
-    PandL_sub =  ones(1,quantile);
-    PandL_tot = ones(1,1);    
+    
     
     %/ predict return
     for i = 1:size(Exp_Ret_vec,1)
 
-        %/ rank return
+        %/ rank
         ExpRetRank = transpose(ceil(quantile * tiedrank(Exp_Ret_vec(i,:)) / length(Exp_Ret_vec(i,:))));
         ExpRetRank_vec = [ExpRetRank_vec;transpose(ExpRetRank)];
-        RetMat_tplus1 = RetMat_vec(LookBackFactor+i,:);
         
-        %/ calculate average return and sub return
         for j = 1:quantile 
-            AverageRet(1,j) = AverageRet(1,j) + mean(RetMat_tplus1(ExpRetRank_vec(i,:)==j));
-            PandL_sub(i+1,j) = PandL_sub(i,j) * (1 + mean(RetMat_tplus1(ExpRetRank_vec(i,:)==j)));   
+            AverageRet(1,j) = AverageRet(1,j) + mean(RetMat_tplus1_vec(i,ExpRetRank_vec(i,:)==j));
+            PandL_sub(i+1,j) = PandL_sub(i,j) * (1 + mean(RetMat_tplus1_vec(i,ExpRetRank_vec(i,:)==j)));   
         end
         
-        PandL_tot(i+1,1) = PandL_tot(i,1) * ( 1 + mean(RetMat_tplus1(ExpRetRank_vec(i,:) == quantile)) - mean(RetMat_tplus1(ExpRetRank_vec(i,:)==1)) ) ;
+        
         
     end
     
-result= 0;    
+    %/ analysis
     
-
+    PandL_sub =  ones(1,quantile);
+    PandL_tot = ones(1,1);
+    for i = 1:size(ExpRetRank_vec,1)
+        for j = 1:quantile
+            
+            
+        end
+           PandL_tot(i+1,1) = PandL_tot(i,1) * ( 1 + mean(RetMat_tplus1_vec(i,ExpRetRank_vec(i,:) == quantile)) - mean(RetMat_tplus1_vec(i,ExpRetRank_vec(i,:)==1)) ) ;
+    end 
+    
+    
+end 
 
 
